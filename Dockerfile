@@ -3,9 +3,12 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Preserve npm peer-dep behavior in CI builds
+ENV NPM_CONFIG_LEGACY_PEER_DEPS=true
+
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy the rest of the application code
 COPY . .
