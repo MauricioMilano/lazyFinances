@@ -7,52 +7,80 @@ import { extractTransactions } from '@/utils/ai-extraction';
 import { toast } from 'sonner';
 
 export function ExtractionCard() {
-  const { data, addTransaction } = useFinance();
+  const { data, addTransactions } = useFinance();
   const [isProcessing, setIsProcessing] = React.useState(false);
   const selectedAccount = data.accounts[0]?.id || '';
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsProcessing(true);
-    const toastId = toast.loading('Extracting transactions with local AI...');
+    const totalFiles = files.length;
+    const toastId = toast.loading(`Preparing to process ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`);
     
-    try {
-      const reader = new FileReader();
-      const base64Promise = new Promise<string>((resolve) => {
-        reader.onload = () => resolve(reader.result as string);
-      });
-      reader.readAsDataURL(file);
-      const base64 = await base64Promise;
+    const allResults: any[] = [];
+    let successCount = 0;
+    let errorCount = 0;
 
-      const results = await extractTransactions(base64, data.config);
-      
-      if (results && results.length > 0) {
-        results.forEach((t) => {
-          addTransaction({
-            date: t.date || new Date().toISOString().split('T')[0],
-            description: t.description || 'Unknown Transaction',
-            amount: t.amount || 0,
-            category: t.category || 'Uncategorized',
-            accountId: selectedAccount,
-            type: t.type as 'income' | 'expense' || 'expense',
-            status: 'confirmed',
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        toast.loading(`Processing file ${i + 1} of ${totalFiles}: ${file.name}...`, { id: toastId });
+
+        try {
+          const reader = new FileReader();
+          const base64Promise = new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
           });
-        });
+          reader.readAsDataURL(file);
+          const base64 = await base64Promise;
+
+          const results = await extractTransactions(base64, data.config);
+          
+          if (results && results.length > 0) {
+            results.forEach((t) => {
+              allResults.push({
+                date: t.date || new Date().toISOString().split('T')[0],
+                description: t.description || 'Unknown Transaction',
+                amount: t.amount || 0,
+                category: t.category || 'Uncategorized',
+                accountId: selectedAccount,
+                type: t.type as 'income' | 'expense' || 'expense',
+                status: 'confirmed',
+              });
+            });
+            successCount++;
+          }
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+          errorCount++;
+        }
+      }
+
+      if (allResults.length > 0) {
+        addTransactions(allResults);
         
-        toast.success(`Successfully imported ${results.length} transactions`, { id: toastId });
+        let message = `Successfully processed ${successCount} file${successCount > 1 ? 's' : ''}`;
+        if (allResults.length > 0) {
+          message += ` and imported ${allResults.length} transaction${allResults.length > 1 ? 's' : ''}.`;
+        }
         
-        // Refresh page after short delay to show success toast
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        if (errorCount > 0) {
+          message += ` (${errorCount} file${errorCount > 1 ? 's' : ''} failed)`;
+          toast.info(message, { id: toastId });
+        } else {
+          toast.success(message, { id: toastId });
+        }
+      } else if (errorCount > 0) {
+        toast.error(`Failed to process ${errorCount} file${errorCount > 1 ? 's' : ''}.`, { id: toastId });
       } else {
-        toast.error('No transactions found in image', { id: toastId });
+        toast.error('No transactions found in the uploaded files.', { id: toastId });
       }
     } catch (error) {
       console.error(error);
-      toast.error(error instanceof Error ? error.message : 'Failed to process image', { id: toastId });
+      toast.error(error instanceof Error ? error.message : 'Failed to process images', { id: toastId });
     } finally {
       setIsProcessing(false);
       e.target.value = '';
@@ -83,6 +111,7 @@ export function ExtractionCard() {
                 type="file"
                 className="hidden"
                 accept="image/*"
+                multiple
                 onChange={handleFileUpload}
                 disabled={isProcessing}
               />

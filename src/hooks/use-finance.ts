@@ -46,6 +46,17 @@ export function useFinance() {
     }));
   };
 
+  const addTransactions = (transactions: Omit<Transaction, 'id'>[]) => {
+    const newTransactions = transactions.map((t) => ({
+      ...t,
+      id: crypto.randomUUID(),
+    }));
+    setData((prev) => ({
+      ...prev,
+      transactions: [...newTransactions, ...prev.transactions],
+    }));
+  };
+
   const updateTransaction = (id: string, updates: Partial<Transaction>) => {
     setData((prev) => ({
       ...prev,
@@ -84,5 +95,6 @@ export function useFinance() {
     deleteTransaction,
     updateConfig,
     addAccount,
+    addTransactions,
   };
 }
