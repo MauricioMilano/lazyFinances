@@ -68,3 +68,19 @@ export async function extractTransactions(
     throw new Error('AI returned invalid JSON format');
   }
 }
+
+export async function fetchModels(config: LMStudioConfig): Promise<string[]> {
+  try {
+    const response = await fetch(config.baseUrl + '/models', {
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+    });
+    if (!response.ok) throw new Error('Failed to fetch models');
+    const data = await response.json();
+    return data.data.map((m: any) => m.id);
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    return [];
+  }
+}
