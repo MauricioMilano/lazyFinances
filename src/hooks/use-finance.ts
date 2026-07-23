@@ -6,7 +6,6 @@ export function useFinance() {
   const addTransactions = useFinanceStore((s) => s.addTransactions);
   const updateTransaction = useFinanceStore((s) => s.updateTransaction);
   const deleteTransaction = useFinanceStore((s) => s.deleteTransaction);
-  const updateConfig = useFinanceStore((s) => s.updateConfig);
   const addAccount = useFinanceStore((s) => s.addAccount);
 
   return {
@@ -15,7 +14,6 @@ export function useFinance() {
     addTransactions,
     updateTransaction,
     deleteTransaction,
-    updateConfig,
     addAccount,
   };
 }

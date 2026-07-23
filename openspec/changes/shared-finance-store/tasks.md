@@ -49,3 +49,18 @@
 - [x] 7.4 Verify progressive commits: with 3 files, the table grows 3 times during the batch
 - [x] 7.5 Verify the header progress bar appears with correct `current`/`total` text
 - [x] 7.6 Run `pnpm lint` and `pnpm build` (typecheck)
+
+## 8. AI Config Store
+
+- [x] 8.1 Create `src/lib/defaults.ts` exporting `DEFAULT_ACCOUNTS`
+- [x] 8.2 Create `src/store/ai-config.ts` with a Zustand store for `LMStudioConfig` and a `DEFAULT_CONFIG` constant
+- [x] 8.3 Configure the AI config store's `persist` middleware with a dedicated key (`aether_ai_config`)
+- [x] 8.4 Implement one-time migration of legacy `data.config` from the old `aether_finance_data` key on first load
+- [x] 8.5 Create `src/hooks/use-ai-config.ts` as a thin selector wrapper over the AI config store
+- [x] 8.6 Remove `config`/`updateConfig`/`DEFAULT_CONFIG`/`DEFAULT_ACCOUNTS` from `src/store/finance.ts`
+- [x] 8.7 Update `src/hooks/use-finance.ts` to drop `updateConfig` from the returned shape
+- [x] 8.8 Update `src/components/Settings.tsx` to consume `useAIConfig` directly (no props)
+- [x] 8.9 Update `src/components/ExtractionCard.tsx` to read config from `useAIConfig` instead of `data.config`
+- [x] 8.10 Update `src/pages/Index.tsx` to render `<Settings />` without props
+- [x] 8.11 Update `README.md` to document the two stores and the new localStorage keys
+- [x] 8.12 Run `pnpm lint` and `pnpm build`

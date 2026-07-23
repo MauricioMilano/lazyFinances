@@ -3,12 +3,14 @@ import { Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useFinance } from '@/hooks/use-finance';
+import { useAIConfig } from '@/hooks/use-ai-config';
 import { useFinanceStore } from '@/store/finance';
 import { extractTransactions } from '@/utils/ai-extraction';
 import { toast } from 'sonner';
 
 export function ExtractionCard() {
   const { data, addTransactions } = useFinance();
+  const { config } = useAIConfig();
   const isProcessing = useFinanceStore((s) => s.upload.isProcessing);
   const startProcessing = useFinanceStore((s) => s.startProcessing);
   const updateProgress = useFinanceStore((s) => s.updateProgress);
@@ -43,7 +45,7 @@ export function ExtractionCard() {
           reader.readAsDataURL(file);
           const base64 = await base64Promise;
 
-          const results = await extractTransactions(base64, data.config);
+          const results = await extractTransactions(base64, config);
 
           if (results && results.length > 0) {
             const fileResults = results.map((t) => ({

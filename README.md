@@ -82,14 +82,17 @@ src/
 │   ├── ExtractionCard.tsx   # Multi-file upload + AI extraction
 │   └── Settings.tsx         # LM Studio configuration dialog
 ├── hooks/
-│   └── use-finance.ts       # Thin selector hook over the store
+│   ├── use-finance.ts       # Thin selector hook over the finance store
+│   └── use-ai-config.ts     # Thin selector hook over the AI config store
 ├── lib/
+│   ├── defaults.ts          # DEFAULT_ACCOUNTS seed data
 │   └── utils.ts             # `cn` helper for Tailwind
 ├── pages/
 │   ├── Index.tsx            # Main dashboard
 │   └── NotFound.tsx         # 404 page
 ├── store/
-│   └── finance.ts           # Zustand store (data + ephemeral upload state)
+│   ├── finance.ts           # Zustand store: transactions, accounts, ephemeral upload state
+│   └── ai-config.ts         # Zustand store: LM Studio configuration
 ├── types/
 │   └── finance.ts           # Shared TypeScript types
 ├── utils/
@@ -104,16 +107,22 @@ openspec/
 ## How it works
 
 1. User selects one or more image files in **ExtractionCard**.
-2. The store's upload lifecycle starts (`startProcessing`), exposing `isProcessing`, `current`, `total`, and `fileName` to any component.
-3. Each file is read as a base64 data URL and sent to LM Studio via the OpenAI-compatible `/chat/completions` endpoint.
-4. Files are processed sequentially. As each file's transactions are extracted, they are committed to the store (`addTransactions`) so the table grows in real time.
+2. The finance store's upload lifecycle starts (`startProcessing`), exposing `isProcessing`, `current`, `total`, and `fileName` to any component.
+3. Each file is read as a base64 data URL and sent to LM Studio (whose config is read from the AI config store) via the OpenAI-compatible `/chat/completions` endpoint.
+4. Files are processed sequentially. As each file's transactions are extracted, they are committed to the finance store (`addTransactions`) so the table grows in real time.
 5. **AirtableTable** subscribes to the same store and renders a header progress ribbon while `isProcessing` is true.
 6. When the batch finishes, `endProcessing` resets the upload state (which is ephemeral and never persisted).
 
-## State persistence
+## State management
 
-- `data` (transactions, accounts, config) is persisted to `localStorage` under the key `aether_finance_data`.
-- `upload` is intentionally **not** persisted — reloading mid-batch starts fresh.
+The app uses two independent Zustand stores:
+
+| Store | Owns | Persistence key | Persistence |
+|---|---|---|---|
+| `useFinanceStore` | transactions, accounts, ephemeral upload state | `aether_finance_data` | data persisted; upload state excluded via `partialize` |
+| `useAIConfigStore` | LM Studio config (`baseUrl`, `apiKey`, `model`) | `aether_ai_config` | entire store persisted |
+
+A one-time migration copies any `config` previously saved under the old combined `aether_finance_data` key into the new `aether_ai_config` key on first load. After the first save through the new store, the old key is left untouched but ignored.
 
 ## License
 

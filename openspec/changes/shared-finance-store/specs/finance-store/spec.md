@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Shared state across components
-The system SHALL expose finance data (transactions, accounts, config) and upload state (isProcessing, current, total, fileName) via a single shared store that all components subscribe to.
+The system SHALL expose finance data (transactions, accounts) and upload state (isProcessing, current, total, fileName) via a single shared store that all components subscribe to.
 
 #### Scenario: Multiple components observe the same state
 - **WHEN** two components subscribe to the same store
@@ -12,7 +12,7 @@ The system SHALL expose finance data (transactions, accounts, config) and upload
 - **THEN** a transaction mutation does not cause that component to re-render
 
 ### Requirement: Persisted data slice
-The system SHALL persist the `data` slice (transactions, accounts, config) to local storage and rehydrate it on page load.
+The system SHALL persist the `data` slice (transactions, accounts) to local storage and rehydrate it on page load.
 
 #### Scenario: Data survives reload
 - **WHEN** the user adds transactions and reloads the page
@@ -26,7 +26,7 @@ The system SHALL NOT persist the `upload` slice to local storage. On rehydration
 - **THEN** the upload state is reset to its initial values and no zombie processing is visible
 
 ### Requirement: Store actions
-The system SHALL expose actions for: adding a single transaction, adding a batch of transactions, updating a transaction, deleting a transaction, updating config, adding an account, and controlling the upload lifecycle (`startProcessing`, `updateProgress`, `endProcessing`).
+The system SHALL expose actions for: adding a single transaction, adding a batch of transactions, updating a transaction, deleting a transaction, adding an account, and controlling the upload lifecycle (`startProcessing`, `updateProgress`, `endProcessing`). The store SHALL NOT expose any AI configuration actions — those live in the dedicated `ai-config-store`.
 
 #### Scenario: Progressive transaction commits
 - **WHEN** `addTransactions` is called multiple times during a batch
@@ -37,3 +37,14 @@ The system SHALL expose actions for: adding a single transaction, adding a batch
 - **THEN** `isProcessing` becomes true and `total` is set to the given value
 - **WHEN** `endProcessing()` is called
 - **THEN** `isProcessing` becomes false and `current`/`total`/`fileName` are reset
+
+#### Scenario: No config-related actions
+- **WHEN** a consumer inspects the finance store
+- **THEN** it does not find an `updateConfig` action or a `config` field in the persisted slice
+
+### Requirement: Defaults are not declared in the store
+The store file SHALL NOT declare seed values such as `DEFAULT_CONFIG` or `DEFAULT_ACCOUNTS`. Default accounts live in `src/lib/defaults.ts`; the AI configuration default lives in `src/store/ai-config.ts`.
+
+#### Scenario: Store file contains no default constants
+- **WHEN** the source of `src/store/finance.ts` is read
+- **THEN** no exported default-config or default-accounts constant is declared

@@ -6,12 +6,11 @@ import { Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Index() {
-  const { 
-    data, 
-    addTransaction, 
-    updateTransaction, 
-    deleteTransaction, 
-    updateConfig 
+  const {
+    data,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
   } = useFinance();
 
   const handleAddManual = () => {
@@ -43,7 +42,7 @@ export default function Index() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Settings config={data.config} onUpdateConfig={updateConfig} />
+          <Settings />
           <Button className="rounded-lg bg-[#181d26] text-white hover:bg-[#0d1218] transition-colors px-4">
             Sign up for free
           </Button>

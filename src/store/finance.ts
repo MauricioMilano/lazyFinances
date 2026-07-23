@@ -1,19 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Transaction, Account, LMStudioConfig, FinanceData } from '../types/finance';
+import { Transaction, Account, FinanceData } from '../types/finance';
+import { DEFAULT_ACCOUNTS } from '../lib/defaults';
 
 const STORAGE_KEY = 'aether_finance_data';
-
-const DEFAULT_CONFIG: LMStudioConfig = {
-  baseUrl: 'http://localhost:1234/v1',
-  apiKey: 'lm-studio',
-  model: 'llama-3.2-vision',
-};
-
-const DEFAULT_ACCOUNTS: Account[] = [
-  { id: '1', name: 'Main Checking', balance: 0, currency: 'USD' },
-  { id: '2', name: 'Savings', balance: 0, currency: 'USD' },
-];
 
 interface UploadState {
   isProcessing: boolean;
@@ -30,7 +20,6 @@ interface FinanceStore {
   addTransactions: (transactions: Omit<Transaction, 'id'>[]) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
-  updateConfig: (config: LMStudioConfig) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
 
   startProcessing: (total: number) => void;
@@ -45,14 +34,15 @@ const initialUpload: UploadState = {
   fileName: '',
 };
 
+const initialData: FinanceData = {
+  transactions: [],
+  accounts: DEFAULT_ACCOUNTS,
+};
+
 export const useFinanceStore = create<FinanceStore>()(
   persist(
     (set) => ({
-      data: {
-        transactions: [],
-        accounts: DEFAULT_ACCOUNTS,
-        config: DEFAULT_CONFIG,
-      },
+      data: initialData,
       upload: initialUpload,
 
       addTransaction: (transaction) =>
@@ -96,11 +86,6 @@ export const useFinanceStore = create<FinanceStore>()(
             ...state.data,
             transactions: state.data.transactions.filter((t) => t.id !== id),
           },
-        })),
-
-      updateConfig: (config) =>
-        set((state) => ({
-          data: { ...state.data, config },
         })),
 
       addAccount: (account) =>
