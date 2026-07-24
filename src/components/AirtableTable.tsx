@@ -31,9 +31,8 @@ interface AirtableTableProps {
 }
 
 function getBulkActionLabel(selectedCount: number, totalCount: number): string {
-  if (selectedCount === 0) return 'Remove all rows';
+  if (selectedCount === 0 || selectedCount === totalCount) return 'Remove all rows';
   const missing = totalCount - selectedCount;
-  if (missing === 0) return `Remove ${selectedCount} rows`;
   return `Remove ${selectedCount} rows, ${missing} missing`;
 }
 
@@ -49,9 +48,17 @@ export function AirtableTable({
     () => new Set(),
   );
   const [confirmBulkOpen, setConfirmBulkOpen] = React.useState(false);
+  const headerCheckboxRef = React.useRef<HTMLInputElement>(null);
 
   const selectedCount = selectedIds.size;
   const totalCount = transactions.length;
+
+  React.useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate =
+        selectedCount > 0 && selectedCount < totalCount;
+    }
+  }, [selectedCount, totalCount]);
 
   const toggleRow = React.useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -61,6 +68,13 @@ export function AirtableTable({
       return next;
     });
   }, []);
+
+  const handleHeaderToggle = React.useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === transactions.length) return new Set();
+      return new Set(transactions.map((t) => t.id));
+    });
+  }, [transactions]);
 
   const handleBulkActionClick = () => {
     if (selectedCount === 0) {
@@ -123,8 +137,19 @@ export function AirtableTable({
       <Table>
         <TableHeader className="bg-[#f8fafc]">
           <TableRow className="hover:bg-transparent border-b-[#dddddd]">
-            <TableHead className="w-[40px] font-medium text-[#181d26]">
-              <span className="sr-only">Select</span>
+            <TableHead className="w-[40px] font-medium text-[#181d26] px-3">
+              {totalCount > 0 ? (
+                <input
+                  type="checkbox"
+                  ref={headerCheckboxRef}
+                  aria-label="Select all rows"
+                  checked={selectedCount === totalCount}
+                  onChange={handleHeaderToggle}
+                  className="h-4 w-4 cursor-pointer accent-[#181d26]"
+                />
+              ) : (
+                <span className="sr-only">Select</span>
+              )}
             </TableHead>
             <TableHead className="w-[120px] font-medium text-[#181d26]">Date</TableHead>
             <TableHead className="font-medium text-[#181d26]">Description</TableHead>
