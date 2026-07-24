@@ -17,3 +17,9 @@ Available packages and libraries:
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.
+
+# Testing (mandatory)
+
+- Unit tests are required for every feature, bug fix, and development task.
+- Use the `lazy-finance-add-tests` skill when bootstrapping or expanding the test suite.
+- Before marking any task done, run `pnpm test` and `pnpm typecheck`; both must exit 0.
