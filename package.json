@@ -14,11 +14,11 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc -b",
-    "cve:scan-deps": "node .opencode/skills/cve-scan/bin/scan-deps.mjs",
-    "cve:scan-staged": "node .opencode/skills/cve-scan/bin/scan-staged.mjs",
-    "cve:scan-proposal": "node .opencode/skills/cve-scan/bin/scan-proposal.mjs",
-    "cve:full-audit": "node .opencode/skills/cve-scan/bin/full-audit.mjs",
-    "cve:trend": "node .opencode/skills/cve-scan/bin/format-report.mjs",
+    "cve:scan-deps": "node .agents/skills/cve-scan/bin/scan-deps.mjs",
+    "cve:scan-staged": "node .agents/skills/cve-scan/bin/scan-staged.mjs",
+    "cve:scan-proposal": "node .agents/skills/cve-scan/bin/scan-proposal.mjs",
+    "cve:full-audit": "node .agents/skills/cve-scan/bin/full-audit.mjs",
+    "cve:trend": "node .agents/skills/cve-scan/bin/format-report.mjs",
     "prepare": "simple-git-hooks || true"
   },
   "dependencies": {

@@ -64,7 +64,7 @@ The system SHALL invoke `gitleaks protect --staged --redact --no-banner` as part
 - **THEN** `scan-staged.mjs` prints `[cve-scan] gitleaks not found. Install: brew install gitleaks` and continues to the pattern scan
 
 ### Requirement: Pattern scanning against editable rule table
-The system SHALL scan the staged diff (or full working tree in apply) against the regex patterns in `.opencode/skills/cve-scan/patterns.json`. Each pattern entry SHALL carry `id`, `regex`, `severity`, `rationale`, and `cwe`. Default patterns SHALL include `eval`, `Function(`, `innerHTML`, `outerHTML`, `dangerouslySetInnerHTML`, `dangerouslySetInnerHTML`, `child_process`, `exec(`, `execSync(`, `document.write`, and `new Function`.
+The system SHALL scan the staged diff (or full working tree in apply) against the regex patterns in `.agents/skills/cve-scan/patterns.json`. Each pattern entry SHALL carry `id`, `regex`, `severity`, `rationale`, and `cwe`. Default patterns SHALL include `eval`, `Function(`, `innerHTML`, `outerHTML`, `dangerouslySetInnerHTML`, `dangerouslySetInnerHTML`, `child_process`, `exec(`, `execSync(`, `document.write`, and `new Function`.
 
 #### Scenario: pattern scan detects eval in staged diff
 - **WHEN** a staged file adds a line containing `eval(` outside of a string literal
