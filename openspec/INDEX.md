@@ -15,6 +15,7 @@ Single MOC for the OpenSpec folder in this vault. For project-wide context docs 
 
 ### 2026-07
 
+- [[2026-07-24-cve-methodology/proposal|cve-methodology]] — Security CVE scanning methodology threaded through every OpenSpec gate
 - [[2026-07-24-openspec-vault-link/proposal|openspec-vault-link]] — Wire OpenSpec changes into the Obsidian vault (wikilinks, tags, bookmarks, MOC)
 - [[2026-07-24-transaction-export/proposal|transaction-export]] — Export transactions as JSON, CSV, XML
 - [[2026-07-24-shared-finance-store/proposal|shared-finance-store]] — Shared Zustand store, progressive commits, table loading indicator
@@ -27,6 +28,7 @@ Single MOC for the OpenSpec folder in this vault. For project-wide context docs 
 - [[batch-transaction-extraction/spec|batch-transaction-extraction]] — Multi-file extraction with progressive commits and table loading indicator
 - [[data-export/spec|data-export]] — Download transactions as JSON, CSV, or XML
 - [[finance-store/spec|finance-store]] — Centralized, persistent store for finance data with ephemeral upload state
+- [[security/spec|security]] — CVE-style security analysis at every OpenSpec gate with severity ladder and trend dashboard
 - [[vault-linking/spec|vault-linking]] — Connect OpenSpec content as a navigable graph via wikilinks, tags, bookmarks, and a MOC
 
 ## Project

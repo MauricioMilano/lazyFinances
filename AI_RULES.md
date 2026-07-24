@@ -23,3 +23,10 @@ Available packages and libraries:
 - Unit tests are required for every feature, bug fix, and development task.
 - Use the `lazy-finance-add-tests` skill when bootstrapping or expanding the test suite.
 - Before marking any task done, run `pnpm test` and `pnpm typecheck`; both must exit 0.
+
+# Security (mandatory)
+
+- Before marking any task done, run `pnpm cve:full-audit`. CRITICAL findings block the task; HIGH findings require an explicit `## Security Overrides` block in the change's `design.md`.
+- Active changes must carry a `## Security Considerations` section in both `proposal.md` and `design.md`; `pnpm cve:scan-proposal` enforces this.
+- Every commit is gated by a `pre-commit` hook (managed by `simple-git-hooks`) that runs `pnpm cve:scan-staged`. Use `git commit --no-verify` only in emergencies and document the reason in the change's `design.md`.
+- See [[docs/cve-methodology.md]] for the severity ladder, gate mapping, and override path.

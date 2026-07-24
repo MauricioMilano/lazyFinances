@@ -88,6 +88,31 @@ Tests live next to the code under test as `__tests__/*.test.ts(x)` and use [Vite
 pnpm typecheck
 ```
 
+## Security
+
+The project runs a CVE-style security scan at every OpenSpec gate (explore, propose, apply, commit, archive). Reports accumulate under `docs/cve-reports/` and a trend dashboard lives at `docs/cve-reports/INDEX.md`.
+
+```bash
+pnpm cve:scan-deps          # audit dependencies (pnpm audit wrapper)
+pnpm cve:scan-staged        # scan staged diff (runs on every commit via hook)
+pnpm cve:scan-proposal      # verify Security Considerations block in active change
+pnpm cve:full-audit         # all scans + report
+pnpm cve:full-audit --baseline   # seed the trend dashboard (run once)
+pnpm cve:trend              # regenerate docs/cve-reports/INDEX.md
+```
+
+A `pre-commit` git hook is installed automatically by `simple-git-hooks` on every `pnpm install`. It runs `pnpm cve:scan-staged` and blocks the commit on any CRITICAL or unoverridden HIGH finding. Bypass with `git commit --no-verify` in an emergency and document the reason in the change's `design.md`.
+
+### Required external tool
+
+`gitleaks` provides the secret-detection dimension. Install once per machine:
+
+```bash
+brew install gitleaks        # macOS
+```
+
+If `gitleaks` is missing, the scanner prints a warning and continues with the pattern and dependency scanners. See [[docs/cve-methodology.md]] for the severity ladder, gate mapping, and override path.
+
 ## Project structure
 
 ```
