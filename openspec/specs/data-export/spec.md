@@ -1,8 +1,15 @@
-# data-export Specification
+---
+tags:
+  - capability/data-export
+---
+# Specification: Data Export
 
 ## Purpose
-TBD - created by archiving change transaction-export. Update Purpose after archive.
+
+Define how transactions are exported from the application in three formats (JSON, CSV, XML) for use in other tools. Export is a read-only operation that draws from the existing finance store without changing its behavior.
+
 ## Requirements
+
 ### Requirement: Export transactions in selected format
 The system SHALL provide an export control on the Transactions page that downloads all current transactions as a file in a user-selected format (JSON, CSV, or XML).
 
@@ -103,3 +110,6 @@ For every transaction field (`id`, `date`, `description`, `amount`, `category`, 
 - **WHEN** a transaction has date `2026-07-15` in the store
 - **THEN** the exported date is `2026-07-15` (ISO `YYYY-MM-DD`) in all three formats
 
+## History
+
+- [[../changes/archive/2026-07-24-transaction-export/proposal|2026-07-24]] — Initial capability: JSON/CSV/XML serializers, ExportButton dropdown, filename convention, transactions-only scope

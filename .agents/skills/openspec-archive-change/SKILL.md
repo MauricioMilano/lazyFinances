@@ -78,11 +78,29 @@ Archive a completed change in the experimental workflow.
    - If yes: Fail with error, suggest renaming existing archive or using different date
    - If no: Move the change directory to archive
 
-   ```bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   ```
+    ```bash
+    mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
+    ```
 
-6. **Display summary**
+6. **Wire into the Obsidian vault**
+
+   Invoke the **`openspec-vault-link`** skill on the archived change:
+   ```
+   /opsx-link openspec-vault-link -- <archive-folder-path>
+   ```
+   Where `<archive-folder-path>` is the new archived location (e.g., `openspec/changes/archive/2026-07-24-shared-finance-store`).
+
+   This step:
+   - Adds the `## Related` footer section linking siblings (proposal ↔ design ↔ tasks ↔ delta specs).
+   - Inline-replaces backticked source paths in `tasks.md` / `proposal.md` / `design.md` with wikilinks (archived: file existence required).
+   - Appends a `## History` entry to each canonical spec the change touched (newest-first).
+   - Applies frontmatter tags: `change/<name>`, `status/archived`, `capability/<name>`.
+   - Registers a folder bookmark via `.obsidian/workspace.json` (backup → atomic write → JSON validate).
+   - Refreshes `openspec/INDEX.md` MOC under the correct `### YYYY-MM` heading.
+
+   If the skill fails or is unavailable, log a warning and continue — the archive itself succeeded; vault wiring is best-effort enrichment.
+
+7. **Display summary**
 
    Show archive completion summary including:
    - Change name

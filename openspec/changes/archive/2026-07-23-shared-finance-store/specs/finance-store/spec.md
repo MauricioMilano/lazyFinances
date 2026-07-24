@@ -1,3 +1,9 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+---
 ## ADDED Requirements
 
 ### Requirement: Shared state across components
@@ -48,3 +54,11 @@ The store file SHALL NOT declare seed values such as `DEFAULT_CONFIG` or `DEFAUL
 #### Scenario: Store file contains no default constants
 - **WHEN** the source of `src/store/finance.ts` is read
 - **THEN** no exported default-config or default-accounts constant is declared
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/finance-store/spec|finance-store canonical spec]]

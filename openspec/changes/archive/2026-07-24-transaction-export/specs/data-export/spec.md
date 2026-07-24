@@ -1,3 +1,9 @@
+---
+tags:
+  - change/transaction-export
+  - status/archived
+  - capability/data-export
+---
 ## ADDED Requirements
 
 ### Requirement: Export transactions in selected format
@@ -99,3 +105,11 @@ For every transaction field (`id`, `date`, `description`, `amount`, `category`, 
 #### Scenario: Date is not reformatted
 - **WHEN** a transaction has date `2026-07-15` in the store
 - **THEN** the exported date is `2026-07-15` (ISO `YYYY-MM-DD`) in all three formats
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/data-export/spec|data-export canonical spec]]

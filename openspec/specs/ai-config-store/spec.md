@@ -1,3 +1,7 @@
+---
+tags:
+  - capability/ai-config-store
+---
 # Specification: AI Config Store
 
 ## Requirements
@@ -45,3 +49,7 @@ The system SHALL expose an `updateConfig(config: LMStudioConfig)` action on the 
 #### Scenario: Local edits are batched on save
 - **WHEN** the user types in the Settings dialog
 - **THEN** the underlying store is not updated until the user explicitly clicks "Save changes"
+
+## History
+
+- [[../changes/archive/2026-07-23-shared-finance-store/proposal|2026-07-23]] — Initial capability: dedicated AI config store extracted from finance store, with one-time migration from the old combined key

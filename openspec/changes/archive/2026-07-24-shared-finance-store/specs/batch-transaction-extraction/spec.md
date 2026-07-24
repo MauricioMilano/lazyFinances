@@ -1,3 +1,9 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/batch-transaction-extraction
+---
 ## MODIFIED Requirements
 
 ### Requirement: Progressive insertion
@@ -23,3 +29,11 @@ The system SHALL display a progress bar in the table header while a batch is bei
 #### Scenario: Progress bar disappears when done
 - **WHEN** the entire batch has finished processing
 - **THEN** the progress bar is hidden and the table returns to its normal state
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/batch-transaction-extraction/spec|batch-transaction-extraction canonical spec]]

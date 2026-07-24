@@ -1,3 +1,11 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+  - capability/batch-transaction-extraction
+  - capability/ai-config-store
+---
 ## Context
 
 `useFinance` is a custom hook that returns state from `useState`. Each call creates a fresh state machine, so two components calling `useFinance` end up with two independent state instances that share nothing in memory. They do share a localStorage key, but localStorage is only read on initial mount and only written via `useEffect` — there is no subscription, so a write from one component does not trigger a re-render in another.
@@ -59,7 +67,7 @@ To fix it properly, we need a shared store. Once the store is shared, we can als
 - **Why**: Existing call sites keep roughly the same shape. The hooks re-export the same surface from their respective stores using selectors.
 - **Alternative**: Refactor all call sites to use `useFinanceStore` / `useAIConfigStore` directly. Rejected: more diff, no real benefit at this scale.
 
-### 8. `DEFAULT_ACCOUNTS` lives in `src/lib/defaults.ts`
+### 8. `DEFAULT_ACCOUNTS` lives in [[src/lib/defaults.ts]]
 - **Why**: It's a single constant, not a store concern. Keeping it in the finance store made the store file double as a defaults file. Extracting it makes the store's responsibility clearer.
 - **Alternative**: Inline the default accounts at the use site. Rejected: would scatter knowledge of the seed data.
 - **Alternative**: Create a separate accounts store. Rejected: accounts are part of the finance data, not a separate domain.
@@ -74,3 +82,12 @@ To fix it properly, we need a shared store. Once the store is shared, we can als
   - **Mitigation**: Single-tab use case per scope. Multi-tab sync is explicitly out of scope.
 - **[Risk]**: Migration of AI config from the old key may be skipped if a user has a corrupted old payload.
   - **Mitigation**: The migration reads defensively (`try/catch`, type checks). If the old key is missing or malformed, the user falls back to `DEFAULT_CONFIG` and can reconfigure in Settings.
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[tasks|Tasks]]
+- [[specs/finance-store/spec|finance-store delta]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction delta]]
+- [[specs/ai-config-store/spec|ai-config-store delta]]

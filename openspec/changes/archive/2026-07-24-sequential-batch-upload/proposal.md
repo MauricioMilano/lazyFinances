@@ -1,3 +1,9 @@
+---
+tags:
+  - change/sequential-batch-upload
+  - status/archived
+  - capability/batch-transaction-extraction
+---
 ## Why
 
 Currently, the application only supports uploading a single image for transaction extraction. This is inefficient for users with multiple receipts or statements. Additionally, the existing implementation triggers a hard page reload after a single success, which would interrupt a multi-file process.
@@ -21,7 +27,14 @@ Currently, the application only supports uploading a single image for transactio
 
 ## Impact
 
-- **Components**: `ExtractionCard.tsx` will be significantly refactored for the loop and toast logic.
-- **Hooks**: `use-finance.ts` will receive a new `addTransactions` method.
+- **Components**: [[src/components/ExtractionCard.tsx]] will be significantly refactored for the loop and toast logic.
+- **Hooks**: [[src/hooks/use-finance.ts]] will receive a new `addTransactions` method.
 - **Performance**: Improved responsiveness when importing large sets of data.
 - **UX**: Constant feedback during long-running batch operations.
+
+
+## Related
+
+- [[design|Design]]
+- [[tasks|Tasks]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]]

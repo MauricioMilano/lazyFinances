@@ -1,3 +1,7 @@
+---
+tags:
+  - capability/finance-store
+---
 # Specification: Finance Store
 
 ## Requirements
@@ -50,3 +54,8 @@ The store file SHALL NOT declare seed values such as `DEFAULT_CONFIG` or `DEFAUL
 #### Scenario: Store file contains no default constants
 - **WHEN** the source of `src/store/finance.ts` is read
 - **THEN** no exported default-config or default-accounts constant is declared
+
+## History
+
+- [[../changes/archive/2026-07-24-shared-finance-store/proposal|2026-07-24]] — Progressive commits + ephemeral upload state; removes config from finance store
+- [[../changes/archive/2026-07-23-shared-finance-store/proposal|2026-07-23]] — Initial shared store; AI config extracted into dedicated store

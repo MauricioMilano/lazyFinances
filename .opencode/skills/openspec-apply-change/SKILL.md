@@ -87,6 +87,26 @@ Implement tasks from an OpenSpec change.
    - If all done: suggest archive
    - If paused: explain why and wait for guidance
 
+8. **Wire into the Obsidian vault (on completion only)**
+
+   Only if **all** tasks are complete AND the change is still active (not yet archived):
+
+   Invoke the **`openspec-vault-link`** skill on the active change:
+   ```
+   /opsx-link openspec-vault-link -- <change-folder-path>
+   ```
+   Where `<change-folder-path>` is the active location (e.g., `openspec/changes/<name>`).
+
+   This step:
+   - Adds the `## Related` footer section linking siblings (proposal ↔ design ↔ tasks ↔ delta specs).
+   - Inline-replaces backticked source paths in `tasks.md` / `proposal.md` / `design.md` with wikilinks (active: file existence NOT required — Obsidian's "create" affordance is preserved).
+   - Applies frontmatter tags: `change/<name>`, `status/active`, `capability/<name>`.
+   - Refreshes `openspec/INDEX.md` MOC under the `## Active` heading.
+
+   Bookmarks are NOT registered for active changes — that happens at archive time.
+
+   If the skill fails or is unavailable, log a warning and continue — task implementation succeeded; vault wiring is best-effort enrichment.
+
 **Output During Implementation**
 
 ```

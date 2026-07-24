@@ -1,3 +1,7 @@
+---
+tags:
+  - capability/batch-transaction-extraction
+---
 # Specification: Batch Transaction Extraction
 
 ## Requirements
@@ -51,3 +55,9 @@ The system SHALL continue processing the remaining files in a batch if an indivi
 #### Scenario: Single file failure
 - **WHEN** the second file in a batch encounter an API error
 - **THEN** the system logs the error and immediately proceeds to process the third file
+
+## History
+
+- [[../changes/archive/2026-07-24-shared-finance-store/proposal|2026-07-24]] — Progressive insertion + table loading indicator added
+- [[../changes/archive/2026-07-23-shared-finance-store/proposal|2026-07-23]] — Progressive insertion + table loading indicator added (earlier version)
+- [[../changes/archive/2026-07-24-sequential-batch-upload/proposal|2026-07-24]] — Initial capability: multi-file selection, sequential processing, bulk data insertion, fault tolerance
