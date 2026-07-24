@@ -37,6 +37,9 @@ const initialUpload: UploadState = {
 const initialData: FinanceData = {
   transactions: [],
   accounts: DEFAULT_ACCOUNTS,
+  // config lives in useAIConfigStore since the AI-config split; the field
+  // remains on the type for backward compatibility with previously persisted data.
+  config: { baseUrl: 'http://localhost:1234/v1', apiKey: 'lm-studio', model: 'llama-3.2-vision' },
 };
 
 export const useFinanceStore = create<FinanceStore>()(
