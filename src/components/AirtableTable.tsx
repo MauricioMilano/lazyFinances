@@ -79,9 +79,8 @@ export function AirtableTable({
   const handleBulkActionClick = () => {
     if (selectedCount === 0) {
       setSelectedIds(new Set(transactions.map((t) => t.id)));
-    } else {
-      setConfirmBulkOpen(true);
     }
+    setConfirmBulkOpen(true);
   };
 
   const handleBulkConfirm = () => {
