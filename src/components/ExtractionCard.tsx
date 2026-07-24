@@ -3,29 +3,37 @@ import { Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useFinance } from '@/hooks/use-finance';
+import { useAIConfig } from '@/hooks/use-ai-config';
+import { useFinanceStore } from '@/store/finance';
 import { extractTransactions } from '@/utils/ai-extraction';
 import { toast } from 'sonner';
 
 export function ExtractionCard() {
   const { data, addTransactions } = useFinance();
-  const [isProcessing, setIsProcessing] = React.useState(false);
+  const { config } = useAIConfig();
+  const isProcessing = useFinanceStore((s) => s.upload.isProcessing);
+  const startProcessing = useFinanceStore((s) => s.startProcessing);
+  const updateProgress = useFinanceStore((s) => s.updateProgress);
+  const endProcessing = useFinanceStore((s) => s.endProcessing);
   const selectedAccount = data.accounts[0]?.id || '';
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setIsProcessing(true);
     const totalFiles = files.length;
+    startProcessing(totalFiles);
+
     const toastId = toast.loading(`Preparing to process ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`);
-    
-    const allResults: any[] = [];
+
     let successCount = 0;
     let errorCount = 0;
+    let totalImported = 0;
 
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        updateProgress(i + 1, file.name);
         toast.loading(`Processing file ${i + 1} of ${totalFiles}: ${file.name}...`, { id: toastId });
 
         try {
@@ -37,20 +45,20 @@ export function ExtractionCard() {
           reader.readAsDataURL(file);
           const base64 = await base64Promise;
 
-          const results = await extractTransactions(base64, data.config);
-          
+          const results = await extractTransactions(base64, config);
+
           if (results && results.length > 0) {
-            results.forEach((t) => {
-              allResults.push({
-                date: t.date || new Date().toISOString().split('T')[0],
-                description: t.description || 'Unknown Transaction',
-                amount: t.amount || 0,
-                category: t.category || 'Uncategorized',
-                accountId: selectedAccount,
-                type: t.type as 'income' | 'expense' || 'expense',
-                status: 'confirmed',
-              });
-            });
+            const fileResults = results.map((t) => ({
+              date: t.date || new Date().toISOString().split('T')[0],
+              description: t.description || 'Unknown Transaction',
+              amount: t.amount || 0,
+              category: t.category || 'Uncategorized',
+              accountId: selectedAccount,
+              type: t.type as 'income' | 'expense' || 'expense',
+              status: 'confirmed' as const,
+            }));
+            addTransactions(fileResults);
+            totalImported += fileResults.length;
             successCount++;
           }
         } catch (error) {
@@ -59,14 +67,8 @@ export function ExtractionCard() {
         }
       }
 
-      if (allResults.length > 0) {
-        addTransactions(allResults);
-        
-        let message = `Successfully processed ${successCount} file${successCount > 1 ? 's' : ''}`;
-        if (allResults.length > 0) {
-          message += ` and imported ${allResults.length} transaction${allResults.length > 1 ? 's' : ''}.`;
-        }
-        
+      if (totalImported > 0) {
+        let message = `Successfully imported ${totalImported} transaction${totalImported > 1 ? 's' : ''} from ${successCount} file${successCount > 1 ? 's' : ''}`;
         if (errorCount > 0) {
           message += ` (${errorCount} file${errorCount > 1 ? 's' : ''} failed)`;
           toast.info(message, { id: toastId });
@@ -82,7 +84,7 @@ export function ExtractionCard() {
       console.error(error);
       toast.error(error instanceof Error ? error.message : 'Failed to process images', { id: toastId });
     } finally {
-      setIsProcessing(false);
+      endProcessing();
       e.target.value = '';
     }
   };

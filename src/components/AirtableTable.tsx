@@ -17,7 +17,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Trash2, Loader2 } from 'lucide-react';
+import { useFinanceStore } from '@/store/finance';
 
 interface AirtableTableProps {
   transactions: Transaction[];
@@ -32,8 +34,29 @@ export function AirtableTable({
   onUpdate,
   onDelete,
 }: AirtableTableProps) {
+  const upload = useFinanceStore((s) => s.upload);
+  const percent = upload.total > 0 ? Math.round((upload.current / upload.total) * 100) : 0;
+
   return (
     <div className="rounded-lg border border-[#dddddd] bg-white overflow-hidden">
+      {upload.isProcessing && (
+        <div className="border-b border-[#dddddd] bg-[#f8fafc] px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-sm text-[#181d26]">
+              <Loader2 className="h-4 w-4 animate-spin text-[#254fad]" />
+              <span>
+                Processing{' '}
+                <span className="font-medium">{upload.fileName || 'file'}</span>{' '}
+                <span className="text-[#41454d]">
+                  ({upload.current}/{upload.total})
+                </span>
+              </span>
+            </div>
+            <span className="text-xs text-[#41454d] tabular-nums">{percent}%</span>
+          </div>
+          <Progress value={percent} className="h-1.5" />
+        </div>
+      )}
       <Table>
         <TableHeader className="bg-[#f8fafc]">
           <TableRow className="hover:bg-transparent border-b-[#dddddd]">
@@ -107,7 +130,7 @@ export function AirtableTable({
               </TableCell>
             </TableRow>
           ))}
-          {transactions.length === 0 && (
+          {transactions.length === 0 && !upload.isProcessing && (
             <TableRow>
               <TableCell colSpan={6} className="h-32 text-center text-[#41454d]">
                 No transactions yet. Upload a statement or add one manually.

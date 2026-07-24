@@ -17,41 +17,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { LMStudioConfig } from '@/types/finance';
 import { fetchModels } from '@/utils/ai-extraction';
 import { toast } from 'sonner';
+import { useAIConfig } from '@/hooks/use-ai-config';
 
-interface SettingsProps {
-  config: LMStudioConfig;
-  onUpdateConfig: (config: LMStudioConfig) => void;
-}
-
-export function Settings({ config, onUpdateConfig }: SettingsProps) {
+export function Settings() {
+  const { config, updateConfig } = useAIConfig();
   const [localConfig, setLocalConfig] = React.useState(config);
   const [models, setModels] = React.useState<string[]>([]);
   const [isLoadingModels, setIsLoadingModels] = React.useState(false);
 
-  const loadModels = React.useCallback(async (currentConfig: LMStudioConfig) => {
+  const loadModels = React.useCallback(async (currentConfig: typeof config) => {
     setIsLoadingModels(true);
     try {
       const availableModels = await fetchModels(currentConfig);
       setModels(availableModels);
-      if (availableModels.length > 0 && !availableModels.includes(localConfig.model)) {
-        // Only set if current model isn't in the list, but maybe we should keep it if it's manual
-      }
     } catch (error) {
       toast.error('Could not connect to LM Studio to fetch models');
     } finally {
       setIsLoadingModels(false);
     }
-  }, [localConfig.model]);
+  }, []);
 
   React.useEffect(() => {
     loadModels(localConfig);
-  }, []);
+  }, [loadModels, localConfig]);
 
   const handleSave = () => {
-    onUpdateConfig(localConfig);
+    updateConfig(localConfig);
     toast.success('Settings saved');
   };
 
@@ -92,10 +85,10 @@ export function Settings({ config, onUpdateConfig }: SettingsProps) {
           <div className="grid gap-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="model">Model Name</Label>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
                 onClick={() => loadModels(localConfig)}
                 disabled={isLoadingModels}
               >
