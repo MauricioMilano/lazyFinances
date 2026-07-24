@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { Trash2, Loader2 } from 'lucide-react';
 import { useFinanceStore } from '@/store/finance';
 
@@ -36,6 +37,7 @@ export function AirtableTable({
 }: AirtableTableProps) {
   const upload = useFinanceStore((s) => s.upload);
   const percent = upload.total > 0 ? Math.round((upload.current / upload.total) * 100) : 0;
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   return (
     <div className="rounded-lg border border-[#dddddd] bg-white overflow-hidden">
@@ -122,7 +124,7 @@ export function AirtableTable({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDelete(t.id)}
+                  onClick={() => setConfirmDeleteId(t.id)}
                   className="h-8 w-8 text-[#41454d] opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -139,6 +141,21 @@ export function AirtableTable({
           )}
         </TableBody>
       </Table>
+      <ConfirmModal
+        open={confirmDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDeleteId(null);
+        }}
+        title="Delete this transaction?"
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        intent="destructive"
+        onConfirm={() => {
+          if (confirmDeleteId) onDelete(confirmDeleteId);
+          setConfirmDeleteId(null);
+        }}
+      />
     </div>
   );
 }

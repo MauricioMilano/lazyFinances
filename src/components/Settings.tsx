@@ -1,13 +1,7 @@
 import React from 'react';
 import { Settings as SettingsIcon, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -49,17 +43,15 @@ export function Settings() {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Modal>
+      <Modal.Trigger asChild>
         <Button variant="outline" size="icon" className="rounded-lg border-[#dddddd]">
           <SettingsIcon className="h-4 w-4" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>LM Studio Configuration</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+      </Modal.Trigger>
+      <Modal.Header title="LM Studio Configuration" />
+      <Modal.Body>
+        <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="baseUrl">Base URL</Label>
             <Input
@@ -130,12 +122,12 @@ export function Settings() {
             </div>
           </div>
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSave} className="rounded-lg bg-[#181d26] text-white">
-            Save changes
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={handleSave} className="rounded-lg bg-[#181d26] text-white">
+          Save changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
