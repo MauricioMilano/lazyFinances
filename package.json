@@ -13,7 +13,13 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "cve:scan-deps": "node .agents/skills/cve-scan/bin/scan-deps.mjs",
+    "cve:scan-staged": "node .agents/skills/cve-scan/bin/scan-staged.mjs",
+    "cve:scan-proposal": "node .agents/skills/cve-scan/bin/scan-proposal.mjs",
+    "cve:full-audit": "node .agents/skills/cve-scan/bin/full-audit.mjs",
+    "cve:trend": "node .agents/skills/cve-scan/bin/format-report.mjs",
+    "prepare": "simple-git-hooks || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -86,10 +92,19 @@
     "globals": "^15.9.0",
     "happy-dom": "^20.11.1",
     "postcss": "^8.4.47",
+    "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^8.0.0",
     "vitest": "^4.1.10"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm cve:scan-staged"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "simple-git-hooks"
+    ]
   }
 }
