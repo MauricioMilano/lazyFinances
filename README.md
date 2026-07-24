@@ -72,18 +72,36 @@ pnpm preview
 pnpm lint
 ```
 
+## Tests
+
+```bash
+pnpm test              # run once
+pnpm test:watch        # watch mode
+pnpm test:coverage     # with v8 coverage
+```
+
+Tests live next to the code under test as `__tests__/*.test.ts(x)` and use [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/) and `happy-dom`. Coverage is configured to exclude the shadcn `ui/` primitives and the `cn` helper.
+
+## Typecheck
+
+```bash
+pnpm typecheck
+```
+
 ## Project structure
 
 ```
 src/
 ├── components/
 │   ├── ui/                  # shadcn/ui primitives (do not edit)
+│   ├── __tests__/           # Vitest suites for the components
 │   ├── AirtableTable.tsx    # Editable transactions table
 │   ├── ExtractionCard.tsx   # Multi-file upload + AI extraction
 │   └── Settings.tsx         # LM Studio configuration dialog
 ├── hooks/
 │   ├── use-finance.ts       # Thin selector hook over the finance store
-│   └── use-ai-config.ts     # Thin selector hook over the AI config store
+│   ├── use-ai-config.ts     # Thin selector hook over the AI config store
+│   └── __tests__/           # Vitest suites for the hooks
 ├── lib/
 │   ├── defaults.ts          # DEFAULT_ACCOUNTS seed data
 │   └── utils.ts             # `cn` helper for Tailwind
@@ -91,12 +109,17 @@ src/
 │   ├── Index.tsx            # Main dashboard
 │   └── NotFound.tsx         # 404 page
 ├── store/
+│   ├── __tests__/           # Vitest suites for the stores
 │   ├── finance.ts           # Zustand store: transactions, accounts, ephemeral upload state
 │   └── ai-config.ts         # Zustand store: LM Studio configuration
+├── test/
+│   └── setup.ts             # Vitest setup (jest-dom, cleanup, localStorage)
 ├── types/
 │   └── finance.ts           # Shared TypeScript types
 ├── utils/
-│   └── ai-extraction.ts     # LM Studio API client
+│   ├── __tests__/           # Vitest suites for the utils
+│   ├── ai-extraction.ts     # LM Studio API client
+│   └── export.ts            # JSON / CSV / XML exporters
 ├── App.tsx
 └── main.tsx
 openspec/
