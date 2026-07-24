@@ -3,6 +3,14 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const noRawModalPrimitives = (
+  await import(path.resolve(__dirname, "eslint-rules/no-raw-modal-primitives.cjs"))
+).default;
 
 export default tseslint.config(
   { ignores: ["dist"] },
@@ -16,6 +24,11 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      local: {
+        rules: {
+          "no-raw-modal-primitives": noRawModalPrimitives,
+        },
+      },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -24,6 +37,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      "local/no-raw-modal-primitives": "error",
     },
   },
 );
