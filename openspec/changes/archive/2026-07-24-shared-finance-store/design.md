@@ -1,3 +1,10 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+  - capability/batch-transaction-extraction
+---
 ## Context
 
 `useFinance` is a custom hook that returns state from `useState`. Each call creates a fresh state machine, so two components calling `useFinance` end up with two independent state instances that share nothing in memory. They do share a localStorage key, but localStorage is only read on initial mount and only written via `useEffect` — there is no subscription, so a write from one component does not trigger a re-render in another.
@@ -44,7 +51,7 @@ To fix it properly, we need a shared store. Once the store is shared, we can als
 - **Alternative**: Spinner overlay over the table. Rejected: hides existing data, more visually aggressive than needed.
 
 ### 5. Backward-compatible `useFinance` hook
-- **Why**: Existing call sites (`Index.tsx`, `ExtractionCard.tsx`) keep the same API. The hook re-exports the same shape from the Zustand store using selectors.
+- **Why**: Existing call sites ([[src/pages/Index.tsx]], [[src/components/ExtractionCard.tsx]]) keep the same API. The hook re-exports the same shape from the Zustand store using selectors.
 - **Alternative**: Refactor all call sites to use `useFinanceStore` directly. Rejected: more diff, no real benefit at this scale.
 
 ## Risks / Trade-offs
@@ -55,3 +62,11 @@ To fix it properly, we need a shared store. Once the store is shared, we can als
   - **Mitigation**: 3KB gzipped; pays for itself by solving a real cross-component reactivity problem.
 - **[Risk]**: Persistence could write stale data if multiple tabs are open.
   - **Mitigation**: Single-tab use case per scope. Multi-tab sync is explicitly out of scope.
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[tasks|Tasks]]
+- [[specs/finance-store/spec|finance-store delta]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction delta]]

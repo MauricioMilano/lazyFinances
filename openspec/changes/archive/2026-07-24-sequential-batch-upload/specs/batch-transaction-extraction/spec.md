@@ -1,3 +1,9 @@
+---
+tags:
+  - change/sequential-batch-upload
+  - status/archived
+  - capability/batch-transaction-extraction
+---
 ## ADDED Requirements
 
 ### Requirement: Multiple file selection
@@ -34,3 +40,11 @@ The system SHALL continue processing the remaining files in a batch if an indivi
 #### Scenario: Single file failure
 - **WHEN** the second file in a batch encounter an API error
 - **THEN** the system logs the error and immediately proceeds to process the third file
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/batch-transaction-extraction/spec|batch-transaction-extraction canonical spec]]

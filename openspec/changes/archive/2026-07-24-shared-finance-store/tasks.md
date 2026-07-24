@@ -1,10 +1,17 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+  - capability/batch-transaction-extraction
+---
 ## 1. Dependencies
 
 - [x] 1.1 Install `zustand` via `pnpm add zustand`
 
 ## 2. Store Implementation
 
-- [x] 2.1 Create `src/store/finance.ts` with a Zustand store
+- [x] 2.1 Create [[src/store/finance.ts]] with a Zustand store
 - [x] 2.2 Define `FinanceStore` interface with `data` slice (transactions, accounts, config) and `upload` slice (isProcessing, current, total, fileName)
 - [x] 2.3 Implement data actions: `addTransaction`, `addTransactions`, `updateTransaction`, `deleteTransaction`
 - [x] 2.4 Implement config actions: `updateConfig`, `addAccount`
@@ -14,7 +21,7 @@
 
 ## 3. Hook Migration
 
-- [x] 3.1 Refactor `src/hooks/use-finance.ts` to be a thin wrapper over the Zustand store using selectors
+- [x] 3.1 Refactor [[src/hooks/use-finance.ts]] to be a thin wrapper over the Zustand store using selectors
 - [x] 3.2 Remove the local `useState`/`useEffect` localStorage logic
 - [x] 3.3 Keep the same returned shape (`data`, `addTransaction`, `addTransactions`, `updateTransaction`, `deleteTransaction`, `updateConfig`, `addAccount`)
 
@@ -37,15 +44,23 @@
 
 ## 6. Spec Updates
 
-- [x] 6.1 Modify `batch-transaction-extraction/spec.md`: change "Bulk data insertion" to "Progressive insertion" with per-file commits
-- [x] 6.2 Add new requirement to `batch-transaction-extraction/spec.md`: "Table loading indicator" with header progress bar
-- [x] 6.3 Create `finance-store/spec.md` with shared state, persistence, and ephemeral upload state requirements
+- [x] 6.1 Modify [[../../specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]]: change "Bulk data insertion" to "Progressive insertion" with per-file commits
+- [x] 6.2 Add new requirement to [[../../specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]]: "Table loading indicator" with header progress bar
+- [x] 6.3 Create [[../../specs/finance-store/spec|finance-store spec]] with shared state, persistence, and ephemeral upload state requirements
 
 ## 7. Verification
 
-- [x] 7.1 Verify cross-component reactivity: uploading in `ExtractionCard` updates the table in `Index.tsx`
+- [x] 7.1 Verify cross-component reactivity: uploading in [[src/components/ExtractionCard.tsx]] updates the table in [[src/pages/Index.tsx]]
 - [x] 7.2 Verify persistence: reload the page after adding transactions, data is restored
 - [x] 7.3 Verify upload state resets on reload (no zombie "isProcessing" from a previous session)
 - [x] 7.4 Verify progressive commits: with 3 files, the table grows 3 times during the batch
 - [x] 7.5 Verify the header progress bar appears with correct `current`/`total` text
 - [x] 7.6 Run `pnpm lint` and `pnpm build` (typecheck)
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[design|Design]]
+- [[specs/finance-store/spec|finance-store delta]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction delta]]

@@ -1,3 +1,9 @@
+---
+tags:
+  - change/sequential-batch-upload
+  - status/archived
+  - capability/batch-transaction-extraction
+---
 ## 1. Data Layer (Hooks)
 
 - [x] 1.1 Add `addTransactions` method to `useFinance` hook for bulk updates.
@@ -22,3 +28,10 @@
 
 - [x] 4.1 Implement `try...catch` within the loop to allow remaining files to process after a single failure.
 - [x] 4.2 Add error logging and partial success notifications.
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[design|Design]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]]

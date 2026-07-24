@@ -1,8 +1,14 @@
+---
+tags:
+  - change/transaction-export
+  - status/archived
+  - capability/data-export
+---
 ## Context
 
 The Transactions table renders an Export button at `src/pages/Index.tsx:89` with no `onClick` handler. There is no other export code in the codebase — `grep` for `Blob`, `download`, `exportTo`, etc. returns nothing. Users want to get their transactions out for analysis in other tools (spreadsheets, other finance apps, accountants).
 
-The data lives in a Zustand store (`src/store/finance.ts`) persisted to `localStorage` via `zustand/middleware`'s `persist`. Consumers read it via `useFinance()` (`src/hooks/use-finance.ts`), which exposes `data.transactions` as a plain array. There is no backend — everything is client-side, so export is a pure browser-side serialization + `Blob` + `URL.createObjectURL` + anchor-click pattern.
+The data lives in a Zustand store ([[src/store/finance.ts]]) persisted to `localStorage` via `zustand/middleware`'s `persist`. Consumers read it via `useFinance()` ([[src/hooks/use-finance.ts]]), which exposes `data.transactions` as a plain array. There is no backend — everything is client-side, so export is a pure browser-side serialization + `Blob` + `URL.createObjectURL` + anchor-click pattern.
 
 UI conventions are already established: shadcn components (Button, Dialog, DropdownMenu, Select, Card), `lucide-react` icons, `sonner` toasts, Tailwind utilities. The ExportButton should follow these patterns.
 
@@ -26,7 +32,7 @@ UI conventions are already established: shadcn components (Button, Dialog, Dropd
 
 ### 1. Three serializers in one utility module, not three
 
-**Choice**: One file `src/utils/export.ts` exporting `toJSON`, `toCSV`, `toXML`, and `downloadFile`.
+**Choice**: One file [[src/utils/export.ts]] exporting `toJSON`, `toCSV`, `toXML`, and `downloadFile`.
 
 **Why**: Each format is ~20-40 lines. Three separate files would be over-organized. They share an input signature (`Transaction[]`) and have no shared logic — co-locating makes the module discoverable and the format choices comparable side-by-side.
 
@@ -67,7 +73,7 @@ UI conventions are already established: shadcn components (Button, Dialog, Dropd
 
 **Why**: Date-stamped so multiple exports in a session don't collide. The prefix matches the project name (`lazyFinances/`) and how users refer to the app.
 
-**Note**: The persisted storage key in `src/store/finance.ts` (`aether_finance_data`) is intentionally left untouched in this change. Renaming it would invalidate existing users' local storage and is a separate migration concern.
+**Note**: The persisted storage key in [[src/store/finance.ts]] (`aether_finance_data`) is intentionally left untouched in this change. Renaming it would invalidate existing users' local storage and is a separate migration concern.
 
 **Alternative considered**: Including time (`...-HH-MM-SS...`). Overkill for a user clicking a button once or twice a session.
 
@@ -102,3 +108,10 @@ UI conventions are already established: shadcn components (Button, Dialog, Dropd
 - **`URL.revokeObjectURL` timing**. If revoked before the download triggers (some browsers), the download fails silently. → Use the well-known pattern of clicking the anchor synchronously then revoking on the next microtask (or `setTimeout(..., 0)`).
 
 - **Large transaction lists**. Synchronous serialization of, say, 10k transactions is fine; 100k starts to be noticeable. → Not a concern at personal-finance scale; noted as a future consideration if usage patterns change.
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[tasks|Tasks]]
+- [[specs/data-export/spec|data-export spec]]

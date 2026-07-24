@@ -1,3 +1,9 @@
+---
+tags:
+  - change/sequential-batch-upload
+  - status/archived
+  - capability/batch-transaction-extraction
+---
 ## Context
 
 The current implementation of `ExtractionCard` handles file uploads one at a time. It uses a `FileReader` to encode images and then calls `extractTransactions`. Upon success, it reloads the entire page. Integrating batch processing requires moving from a single-file event handler to a queue-based processing loop and updating the state management hook to support bulk updates.
@@ -44,3 +50,10 @@ The success logic will no longer trigger a reload.
   - **Mitigation**: Base64 strings are transiently held in the loop and garbage collected; limit total batch size in the future if needed.
 - **[Risk]**: State sync issues between tabs.
   - **Mitigation**: `useFinance` already syncs to `localStorage`, but we will ensure the batch operation completes before the final write.
+
+
+## Related
+
+- [[proposal|Proposal]]
+- [[tasks|Tasks]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]]

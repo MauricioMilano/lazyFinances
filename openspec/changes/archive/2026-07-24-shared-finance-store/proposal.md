@@ -1,3 +1,10 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+  - capability/batch-transaction-extraction
+---
 ## Why
 
 The current `useFinance` hook creates an independent React state instance per component. This means `ExtractionCard` and `Index.tsx` (which renders `AirtableTable`) hold separate state copies. When `ExtractionCard.addTransactions(...)` runs, only `ExtractionCard`'s state updates — `AirtableTable` never sees the new rows. The previous change happened to mask this because all writes were deferred to a single bulk commit at the end of a batch, but the underlying reactivity is broken.
@@ -22,7 +29,15 @@ Additionally, the table has no way to know that an upload is in progress. The on
 
 ## Impact
 
-- **New files**: `src/store/finance.ts`
-- **Modified files**: `src/hooks/use-finance.ts` (becomes a thin wrapper), `src/components/ExtractionCard.tsx`, `src/components/AirtableTable.tsx`, `src/pages/Index.tsx`
+- **New files**: [[src/store/finance.ts]]
+- **Modified files**: [[src/hooks/use-finance.ts]] (becomes a thin wrapper), [[src/components/ExtractionCard.tsx]], [[src/components/AirtableTable.tsx]], [[src/pages/Index.tsx]]
 - **Dependencies**: Adds `zustand` to `package.json`
-- **Specs**: Modifies `batch-transaction-extraction/spec.md` (commit semantics + new loading requirement). Adds `finance-store/spec.md`.
+- **Specs**: Modifies [[../../specs/batch-transaction-extraction/spec|batch-transaction-extraction spec]] (commit semantics + new loading requirement). Adds [[../../specs/finance-store/spec|finance-store spec]].
+
+
+## Related
+
+- [[design|Design]]
+- [[tasks|Tasks]]
+- [[specs/finance-store/spec|finance-store delta]]
+- [[specs/batch-transaction-extraction/spec|batch-transaction-extraction delta]]

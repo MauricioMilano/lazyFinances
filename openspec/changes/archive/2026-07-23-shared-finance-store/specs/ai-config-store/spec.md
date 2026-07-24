@@ -1,3 +1,9 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/ai-config-store
+---
 ## ADDED Requirements
 
 ### Requirement: Shared AI config state
@@ -43,3 +49,11 @@ The system SHALL expose an `updateConfig(config: LMStudioConfig)` action on the 
 #### Scenario: Local edits are batched on save
 - **WHEN** the user types in the Settings dialog
 - **THEN** the underlying store is not updated until the user explicitly clicks "Save changes"
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/ai-config-store/spec|ai-config-store canonical spec]]

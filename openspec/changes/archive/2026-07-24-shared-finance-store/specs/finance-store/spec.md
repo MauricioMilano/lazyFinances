@@ -1,3 +1,9 @@
+---
+tags:
+  - change/shared-finance-store
+  - status/archived
+  - capability/finance-store
+---
 ## ADDED Requirements
 
 ### Requirement: Shared state across components
@@ -37,3 +43,11 @@ The system SHALL expose actions for: adding a single transaction, adding a batch
 - **THEN** `isProcessing` becomes true and `total` is set to the given value
 - **WHEN** `endProcessing()` is called
 - **THEN** `isProcessing` becomes false and `current`/`total`/`fileName` are reset
+
+
+## Related
+
+- [[../../proposal|Proposal]]
+- [[../../design|Design]]
+- [[../../tasks|Tasks]]
+- [[../../../specs/finance-store/spec|finance-store canonical spec]]
