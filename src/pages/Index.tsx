@@ -2,7 +2,8 @@ import { useFinance } from '@/hooks/use-finance';
 import { AirtableTable } from '@/components/AirtableTable';
 import { ExtractionCard } from '@/components/ExtractionCard';
 import { Settings } from '@/components/Settings';
-import { Plus, Download } from 'lucide-react';
+import { ExportButton } from '@/components/ExportButton';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Index() {
@@ -77,23 +78,16 @@ export default function Index() {
             <div className="flex items-center gap-4">
               <h3 className="text-xl font-medium tracking-tight">Transactions</h3>
               <div className="flex gap-2">
-                <Button 
+                <Button
                   onClick={handleAddManual}
-                  variant="outline" 
-                  size="sm" 
+                  variant="outline"
+                  size="sm"
                   className="rounded-lg border-[#dddddd] flex items-center gap-2"
                 >
                   <Plus className="h-4 w-4" />
                   Add Row
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-lg border-[#dddddd] flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Export
-                </Button>
+                <ExportButton transactions={data.transactions} />
               </div>
             </div>
           </div>
