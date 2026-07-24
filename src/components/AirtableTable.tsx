@@ -89,7 +89,6 @@ export function AirtableTable({
   };
 
   const bulkActionLabel = getBulkActionLabel(selectedCount, totalCount);
-  const isBulkDestructive = selectedCount > 0;
 
   return (
     <div className="rounded-lg border border-[#dddddd] bg-white overflow-hidden">
@@ -119,14 +118,11 @@ export function AirtableTable({
               : `${totalCount} ${totalCount === 1 ? 'row' : 'rows'}`}
           </span>
           <Button
-            variant={isBulkDestructive ? 'destructive' : 'outline'}
+            variant="destructive"
             size="sm"
             onClick={handleBulkActionClick}
             disabled={totalCount === 0}
-            className={cn(
-              'rounded-lg border-[#dddddd] flex items-center gap-2',
-              !isBulkDestructive && 'bg-white',
-            )}
+            className="rounded-lg flex items-center gap-2"
           >
             <Trash2 className="h-4 w-4" />
             {bulkActionLabel}
