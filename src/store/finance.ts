@@ -20,6 +20,7 @@ interface FinanceStore {
   addTransactions: (transactions: Omit<Transaction, 'id'>[]) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
+  deleteTransactions: (ids: string[]) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
 
   startProcessing: (total: number) => void;
@@ -83,13 +84,25 @@ export const useFinanceStore = create<FinanceStore>()(
           },
         })),
 
-      deleteTransaction: (id) =>
-        set((state) => ({
-          data: {
-            ...state.data,
-            transactions: state.data.transactions.filter((t) => t.id !== id),
-          },
-        })),
+  deleteTransaction: (id) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        transactions: state.data.transactions.filter((t) => t.id !== id),
+      },
+    })),
+
+  deleteTransactions: (ids) =>
+    set((state) => {
+      if (ids.length === 0) return state;
+      const removed = new Set(ids);
+      return {
+        data: {
+          ...state.data,
+          transactions: state.data.transactions.filter((t) => !removed.has(t.id)),
+        },
+      };
+    }),
 
       addAccount: (account) =>
         set((state) => ({

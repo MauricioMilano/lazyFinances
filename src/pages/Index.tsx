@@ -1,9 +1,13 @@
+import * as React from 'react';
 import { useFinance } from '@/hooks/use-finance';
+import { useFileAttachments } from '@/hooks/use-file-attachments';
 import { AirtableTable } from '@/components/AirtableTable';
 import { ExtractionCard } from '@/components/ExtractionCard';
 import { Settings } from '@/components/Settings';
 import { ExportButton } from '@/components/ExportButton';
-import { Plus } from 'lucide-react';
+import { AttachmentStrip } from '@/components/AttachmentStrip';
+import { AddFileModal } from '@/components/AddFileModal';
+import { Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Index() {
@@ -13,6 +17,8 @@ export default function Index() {
     updateTransaction,
     deleteTransaction,
   } = useFinance();
+  const fileAttachments = useFileAttachments();
+  const [addFileOpen, setAddFileOpen] = React.useState(false);
 
   const handleAddManual = () => {
     addTransaction({
@@ -69,7 +75,10 @@ export default function Index() {
             </div>
           </div>
 
-          <ExtractionCard />
+          <ExtractionCard
+            controller={fileAttachments}
+            onAddFileClick={() => setAddFileOpen(true)}
+          />
         </section>
 
         {/* Table Section */}
@@ -87,12 +96,28 @@ export default function Index() {
                   <Plus className="h-4 w-4" />
                   Add Row
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg border-[#dddddd] flex items-center gap-2"
+                  onClick={() => setAddFileOpen(true)}
+                  data-testid="add-file-button"
+                >
+                  <Upload className="h-4 w-4" />
+                  Add file
+                </Button>
                 <ExportButton transactions={data.transactions} />
               </div>
             </div>
           </div>
 
-          <AirtableTable 
+          <AttachmentStrip
+            attachments={fileAttachments.attachments}
+            onRemove={fileAttachments.remove}
+          />
+
+          <AirtableTable
             transactions={data.transactions}
             accounts={data.accounts}
             onUpdate={updateTransaction}
@@ -117,11 +142,17 @@ export default function Index() {
           <div className="p-6 bg-[#fcab79] rounded-xl border-none">
             <h4 className="font-medium mb-2">Instant Extraction</h4>
             <p className="text-sm text-[#181d26]/80 leading-relaxed">
-              Snap a photo, get structured data. No more manual entry for complex bank statements.
+              Snap a photo, drop a PDF, paste a CSV — get structured data. No more manual entry for complex bank statements.
             </p>
           </div>
         </section>
       </main>
+
+      <AddFileModal
+        open={addFileOpen}
+        onOpenChange={setAddFileOpen}
+        controller={fileAttachments}
+      />
 
       <footer className="border-t border-[#dddddd] py-12 px-8 mt-24">
         <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between gap-12">
