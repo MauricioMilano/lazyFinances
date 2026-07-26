@@ -1,127 +1,95 @@
 import React from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Image as ImageIcon, FileText, FileSpreadsheet, FileJson, FileCode2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useFinance } from '@/hooks/use-finance';
-import { useAIConfig } from '@/hooks/use-ai-config';
-import { useFinanceStore } from '@/store/finance';
-import { extractTransactions } from '@/utils/ai-extraction';
-import { toast } from 'sonner';
+import { SupportedType } from '@/utils/file-parsers';
+import { useFileAttachments, sizeLabel, Attachment } from '@/hooks/use-file-attachments';
 
-export function ExtractionCard() {
-  const { data, addTransactions } = useFinance();
-  const { config } = useAIConfig();
-  const isProcessing = useFinanceStore((s) => s.upload.isProcessing);
-  const startProcessing = useFinanceStore((s) => s.startProcessing);
-  const updateProgress = useFinanceStore((s) => s.updateProgress);
-  const endProcessing = useFinanceStore((s) => s.endProcessing);
-  const selectedAccount = data.accounts[0]?.id || '';
+interface ExtractionCardProps {
+  controller: ReturnType<typeof useFileAttachments>;
+  onAddFileClick: () => void;
+}
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+function cardIcon(type: SupportedType): React.ReactNode {
+  if (type === 'pdf') return <FileText className="h-5 w-5" aria-hidden />;
+  if (type === 'csv' || type === 'xls' || type === 'xlsx')
+    return <FileSpreadsheet className="h-5 w-5" aria-hidden />;
+  if (type === 'json') return <FileJson className="h-5 w-5" aria-hidden />;
+  if (type === 'xml') return <FileCode2 className="h-5 w-5" aria-hidden />;
+  return <ImageIcon className="h-5 w-5" aria-hidden />;
+}
 
-    const totalFiles = files.length;
-    startProcessing(totalFiles);
+function CardAttachment({ attachment, onRemove }: { attachment: Attachment; onRemove: (id: string) => void }) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg bg-white/10 px-2 py-1 text-xs">
+      <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-md border border-white/20 bg-white/5">
+        {attachment.previewUrl ? (
+          <img
+            src={attachment.previewUrl}
+            alt={attachment.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          cardIcon(attachment.type)
+        )}
+      </div>
+      <span className="max-w-[140px] truncate" title={attachment.name}>
+        {attachment.name}
+      </span>
+      <span className="text-white/60">{sizeLabel(attachment.size)}</span>
+      <button
+        type="button"
+        onClick={() => onRemove(attachment.id)}
+        aria-label={`Remove ${attachment.name}`}
+        className="ml-1 rounded-md p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
+      >
+        <X className="h-3 w-3" aria-hidden />
+      </button>
+    </div>
+  );
+}
 
-    const toastId = toast.loading(`Preparing to process ${totalFiles} file${totalFiles > 1 ? 's' : ''}...`);
-
-    let successCount = 0;
-    let errorCount = 0;
-    let totalImported = 0;
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        updateProgress(i + 1, file.name);
-        toast.loading(`Processing file ${i + 1} of ${totalFiles}: ${file.name}...`, { id: toastId });
-
-        try {
-          const reader = new FileReader();
-          const base64Promise = new Promise<string>((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-          });
-          reader.readAsDataURL(file);
-          const base64 = await base64Promise;
-
-          const results = await extractTransactions(base64, config);
-
-          if (results && results.length > 0) {
-            const fileResults = results.map((t) => ({
-              date: t.date || new Date().toISOString().split('T')[0],
-              description: t.description || 'Unknown Transaction',
-              amount: t.amount || 0,
-              category: t.category || 'Uncategorized',
-              accountId: selectedAccount,
-              type: t.type as 'income' | 'expense' || 'expense',
-              status: 'confirmed' as const,
-            }));
-            addTransactions(fileResults);
-            totalImported += fileResults.length;
-            successCount++;
-          }
-        } catch (error) {
-          console.error(`Error processing file ${file.name}:`, error);
-          errorCount++;
-        }
-      }
-
-      if (totalImported > 0) {
-        let message = `Successfully imported ${totalImported} transaction${totalImported > 1 ? 's' : ''} from ${successCount} file${successCount > 1 ? 's' : ''}`;
-        if (errorCount > 0) {
-          message += ` (${errorCount} file${errorCount > 1 ? 's' : ''} failed)`;
-          toast.info(message, { id: toastId });
-        } else {
-          toast.success(message, { id: toastId });
-        }
-      } else if (errorCount > 0) {
-        toast.error(`Failed to process ${errorCount} file${errorCount > 1 ? 's' : ''}.`, { id: toastId });
-      } else {
-        toast.error('No transactions found in the uploaded files.', { id: toastId });
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error instanceof Error ? error.message : 'Failed to process images', { id: toastId });
-    } finally {
-      endProcessing();
-      e.target.value = '';
-    }
-  };
+export function ExtractionCard({ controller, onAddFileClick }: ExtractionCardProps) {
+  const { attachments, remove } = controller;
+  const hasAttachments = attachments.length > 0;
+  const pendingCount = attachments.filter((a) => !a.imported).length;
+  const importedCount = attachments.length - pendingCount;
 
   return (
     <Card className="relative overflow-hidden border-none bg-[#aa2d00] p-8 text-white rounded-xl shadow-lg">
       <div className="relative z-10">
-        <h2 className="text-2xl font-medium mb-2">Import Statement</h2>
+        <h2 className="text-2xl font-medium mb-2">Add file</h2>
         <p className="text-white/80 mb-6 max-w-md">
-          Upload a photo or screenshot. Transactions will be auto-inserted using your local AI model.
+          Drop a file, pick from your device, or paste with Ctrl/Cmd+V. Transactions will be auto-inserted using your local AI model and structured parsers.
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Button
-            asChild
+            type="button"
             className="bg-white text-[#aa2d00] hover:bg-white/90 rounded-lg px-6 h-12 font-medium"
-            disabled={isProcessing}
+            onClick={onAddFileClick}
           >
-            <label className="cursor-pointer flex items-center gap-2">
-              {isProcessing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Upload className="h-4 w-4" />
-              )}
-              {isProcessing ? 'Processing...' : 'Upload Image'}
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                multiple
-                onChange={handleFileUpload}
-                disabled={isProcessing}
-              />
-            </label>
+            <Upload className="mr-2 h-4 w-4" aria-hidden />
+            {hasAttachments ? `Add more (${pendingCount})` : 'Add file'}
           </Button>
+          {hasAttachments && (
+            <span className="flex items-center gap-1 text-xs text-white/80">
+              {pendingCount} pending · {importedCount} imported
+            </span>
+          )}
         </div>
+        {hasAttachments && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {attachments.slice(0, 6).map((att) => (
+              <CardAttachment key={att.id} attachment={att} onRemove={remove} />
+            ))}
+            {attachments.length > 6 && (
+              <span className="rounded-lg bg-white/10 px-2 py-1 text-xs text-white/70">
+                {`+${attachments.length - 6} more`}
+              </span>
+            )}
+          </div>
+        )}
       </div>
-      {/* Decorative element */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
     </Card>
   );

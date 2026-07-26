@@ -86,6 +86,7 @@ export function AirtableTable({
   const handleBulkConfirm = () => {
     Array.from(selectedIds).forEach((id) => onDelete(id));
     setSelectedIds(new Set());
+    setConfirmBulkOpen(false);
   };
 
   const bulkActionLabel = getBulkActionLabel(selectedCount, totalCount);

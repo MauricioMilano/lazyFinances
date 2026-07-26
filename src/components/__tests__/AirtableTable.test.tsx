@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AirtableTable } from '../AirtableTable';
 import { useFinanceStore } from '@/store/finance';
 import { DEFAULT_ACCOUNTS } from '@/lib/defaults';
@@ -99,5 +100,44 @@ describe('AirtableTable', () => {
       />
     );
     expect(screen.getByText('33%')).toBeInTheDocument();
+  });
+
+  it('closes the bulk-delete confirm modal after the user confirms', async () => {
+    const user = userEvent.setup();
+    const txA: Transaction = { ...baseTx, id: 'tx-a', description: 'A' };
+    const txB: Transaction = { ...baseTx, id: 'tx-b', description: 'B' };
+    const txC: Transaction = { ...baseTx, id: 'tx-c', description: 'C' };
+    useFinanceStore.setState({
+      data: { ...initialData, transactions: [txA, txB, txC] },
+      upload: initialUpload,
+    });
+    const onDelete = vi.fn();
+    render(
+      <AirtableTable
+        transactions={[txA, txB, txC]}
+        accounts={DEFAULT_ACCOUNTS}
+        onUpdate={vi.fn()}
+        onDelete={onDelete}
+      />
+    );
+
+    const rowCheckboxes = screen.getAllByRole('checkbox', {
+      name: /select transaction /i,
+    });
+    await user.click(rowCheckboxes[0]);
+    await user.click(rowCheckboxes[1]);
+
+    const bulkBtn = await screen.findByRole('button', { name: /remove 2 rows/i });
+    await user.click(bulkBtn);
+
+    const confirmBtn = await screen.findByRole('button', { name: /^delete$/i });
+    await user.click(confirmBtn);
+
+    expect(onDelete).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /^delete$/i }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { ExtractionCard } from '../ExtractionCard';
+import { useFileAttachments } from '@/hooks/use-file-attachments';
 import { useFinanceStore } from '@/store/finance';
 import { DEFAULT_ACCOUNTS } from '@/lib/defaults';
 import type { FinanceData } from '@/types/finance';
@@ -14,7 +14,6 @@ const emptyData: FinanceData = {
 
 const initialUpload = { isProcessing: false, current: 0, total: 0, fileName: '' };
 
-// Mock sonner to keep the toast portal out of jsdom
 vi.mock('sonner', () => ({
   toast: {
     loading: vi.fn(() => 'toast-id'),
@@ -25,14 +24,11 @@ vi.mock('sonner', () => ({
   },
 }));
 
-// Mock the AI extraction so the test does not hit the network
-const extractTransactionsMock = vi.fn();
 vi.mock('@/utils/ai-extraction', () => ({
-  extractTransactions: (...args: unknown[]) => extractTransactionsMock(...args),
+  extractTransactions: vi.fn(),
   fetchModels: vi.fn(),
 }));
 
-// Use a deterministic AI config to avoid LM Studio network calls
 vi.mock('@/hooks/use-ai-config', () => ({
   useAIConfig: () => ({
     config: {
@@ -44,71 +40,39 @@ vi.mock('@/hooks/use-ai-config', () => ({
   }),
 }));
 
+function Harness({ onAddFileClick }: { onAddFileClick?: () => void }) {
+  const controller = useFileAttachments();
+  return (
+    <ExtractionCard
+      controller={controller}
+      onAddFileClick={onAddFileClick ?? (() => undefined)}
+    />
+  );
+}
+
 describe('ExtractionCard', () => {
   beforeEach(() => {
     useFinanceStore.setState({
       data: emptyData,
       upload: initialUpload,
     });
-    extractTransactionsMock.mockReset();
   });
 
   afterEach(() => {
     localStorage.clear();
-    vi.clearAllMocks();
   });
 
-  it('disables the upload button while isProcessing is true', () => {
-    useFinanceStore.setState({
-      data: emptyData,
-      upload: { isProcessing: true, current: 1, total: 3, fileName: 'x.png' },
-    });
-    render(<ExtractionCard />);
-    const label = screen.getByText(/Processing\.\.\./);
-    expect(label).toBeInTheDocument();
+  it('renders an "Add file" trigger button when no attachments are queued', () => {
+    render(<Harness />);
+    const trigger = screen.getByRole('button', { name: /add file/i });
+    expect(trigger).toBeInTheDocument();
   });
 
-  it('calls extractTransactions once and addTransactions once for a single file', async () => {
-    extractTransactionsMock.mockResolvedValueOnce([
-      { date: '2026-07-23', amount: 10, description: 'Burger', type: 'expense' },
-    ]);
-
-    render(<ExtractionCard />);
-    const file = new File(['dummy'], 'receipt.png', { type: 'image/png' });
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-
-    await userEvent.upload(input, file);
-
-    await waitFor(() => {
-      expect(extractTransactionsMock).toHaveBeenCalledTimes(1);
-    });
-
-    const txs = useFinanceStore.getState().data.transactions;
-    expect(txs).toHaveLength(1);
-    expect(txs[0].description).toBe('Burger');
-
-    // upload slice reset
-    expect(useFinanceStore.getState().upload.isProcessing).toBe(false);
-  });
-
-  it('continues past a failing file and processes the next one', async () => {
-    extractTransactionsMock
-      .mockRejectedValueOnce(new Error('LM Studio down'))
-      .mockResolvedValueOnce([{ date: '2026-07-23', amount: 1, description: 'OK' }]);
-
-    render(<ExtractionCard />);
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const f1 = new File(['a'], 'a.png', { type: 'image/png' });
-    const f2 = new File(['b'], 'b.png', { type: 'image/png' });
-
-    await userEvent.upload(input, [f1, f2]);
-
-    await waitFor(() => {
-      expect(extractTransactionsMock).toHaveBeenCalledTimes(2);
-    });
-
-    const txs = useFinanceStore.getState().data.transactions;
-    expect(txs).toHaveLength(1);
-    expect(txs[0].description).toBe('OK');
+  it('forwards click on the trigger to the parent-supplied handler', () => {
+    const handler = vi.fn();
+    render(<Harness onAddFileClick={handler} />);
+    const trigger = screen.getByRole('button', { name: /add file/i });
+    trigger.click();
+    expect(handler).toHaveBeenCalledOnce();
   });
 });
